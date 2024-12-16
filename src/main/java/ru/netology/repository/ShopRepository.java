@@ -1,4 +1,8 @@
-package ru.netology;
+package ru.netology.repository;
+
+import ru.netology.dto.Product;
+import ru.netology.exceptions.AlreadyExistsException;
+import ru.netology.exceptions.NotFoundException;
 
 public class ShopRepository {
     private Product[] products = new Product[0];
@@ -24,6 +28,10 @@ public class ShopRepository {
      * @param product — добавляемый товар
      */
     public void add(Product product) {
+        boolean isItemExist = findById(product.getId()) != null;
+        if (isItemExist) {
+            throw new AlreadyExistsException("Element with id: " + product.getId() + " already exists");
+        }
         products = addToArray(products, product);
     }
 
@@ -33,6 +41,10 @@ public class ShopRepository {
 
     // Этот способ мы рассматривали в теории в теме про композицию
     public void remove(int id) {
+        boolean isItemExist = findById(id) != null;
+        if (!isItemExist) {
+            throw new NotFoundException("Element with id: " + id + " not found");
+        }
         Product[] tmp = new Product[products.length - 1];
         int copyToIndex = 0;
         for (Product product : products) {
@@ -42,5 +54,14 @@ public class ShopRepository {
             }
         }
         products = tmp;
+    }
+
+    public Product findById(int id) {
+        for (Product product : products) {
+            if (id == product.getId()) {
+                return product;
+            }
+        }
+        return null;
     }
 }
